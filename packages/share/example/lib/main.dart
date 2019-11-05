@@ -56,6 +56,7 @@ class DemoAppState extends State<DemoApp> {
                 const Padding(padding: EdgeInsets.only(top: 24.0)),
                 OrientationBuilder(
                   builder: (BuildContext context, Orientation orientation) {
+                    // A layoutbuilder needs to be used to retrieve the context right before the anchorpoint widget is created
                     Future<void>.microtask(() {
                       final RenderBox box = context.findRenderObject();
                       if (box != null) {

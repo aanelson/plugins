@@ -41,8 +41,20 @@ void main() {
     verifyZeroInteractions(mockChannel);
   });
 
-  test('updating before share does nothing', () {
-    expect( () => Share.sharePosition(Rect.largest), )
+  test('updating null share position does nothing', () {
+    Rect nothing;
+    Share.sharePosition(nothing);
+    verifyZeroInteractions(mockChannel);
+  });
+
+  test('updating share position sets the right params', () async {
+    await Share.sharePosition(const Rect.fromLTWH(1.0, 2.0, 3.0, 4.0));
+    verify(mockChannel.invokeMethod<void>('updateOrigin', <String, dynamic>{
+      'originX': 1.0,
+      'originY': 2.0,
+      'originWidth': 3.0,
+      'originHeight': 4.0,
+    }));
   });
 
   test('sharing origin sets the right params', () async {

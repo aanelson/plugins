@@ -15,6 +15,11 @@ class Share {
   static const MethodChannel channel = MethodChannel('plugins.flutter.io/share');
 
   /// Updates the origin location for the shareSheet
+  /// 
+  /// The [sharePosition] parameter can be used to specify a global
+  /// origin rect for the share sheet popover on iPads. It has no effect
+  /// on non-iPads.
+  /// 
   static Future<void> sharePosition(Rect sharePosition) {
     if (sharePosition == null) {
       return Future<void>.sync(() {});
