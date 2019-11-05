@@ -12,8 +12,21 @@ import 'package:meta/meta.dart' show visibleForTesting;
 class Share {
   /// [MethodChannel] used to communicate with the platform side.
   @visibleForTesting
-  static const MethodChannel channel =
-      MethodChannel('plugins.flutter.io/share');
+  static const MethodChannel channel = MethodChannel('plugins.flutter.io/share');
+
+  /// Updates the origin location for the shareSheet
+  static Future<void> sharePosition(Rect sharePosition) {
+    if (sharePosition == null) {
+      return Future<void>.sync(() {});
+    }
+    final Map<String, dynamic> params = <String, dynamic>{};
+
+    params['originX'] = sharePosition.left;
+    params['originY'] = sharePosition.top;
+    params['originWidth'] = sharePosition.width;
+    params['originHeight'] = sharePosition.height;
+    return channel.invokeMethod('updateOrigin', params);
+  }
 
   /// Summons the platform's share sheet to share text.
   ///
@@ -48,7 +61,6 @@ class Share {
       params['originWidth'] = sharePositionOrigin.width;
       params['originHeight'] = sharePositionOrigin.height;
     }
-
     return channel.invokeMethod<void>('share', params);
   }
 }

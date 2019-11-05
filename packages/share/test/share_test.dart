@@ -41,6 +41,10 @@ void main() {
     verifyZeroInteractions(mockChannel);
   });
 
+  test('updating before share does nothing', () {
+    expect( () => Share.sharePosition(Rect.largest), )
+  });
+
   test('sharing origin sets the right params', () async {
     await Share.share(
       'some text to share',

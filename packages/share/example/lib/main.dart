@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:share/share.dart';
 
@@ -52,8 +54,15 @@ class DemoAppState extends State<DemoApp> {
                   }),
                 ),
                 const Padding(padding: EdgeInsets.only(top: 24.0)),
-                Builder(
-                  builder: (BuildContext context) {
+                OrientationBuilder(
+                  builder: (BuildContext context, Orientation orientation) {
+                    Future<void>.microtask(() {
+                      final RenderBox box = context.findRenderObject();
+                      if (box != null) {
+                        Share.sharePosition(box.localToGlobal(Offset.zero) & box.size);
+                      }
+                    });
+
                     return RaisedButton(
                       child: const Text('Share'),
                       onPressed: text.isEmpty
@@ -68,10 +77,7 @@ class DemoAppState extends State<DemoApp> {
                               // has its position and size after it's built.
                               final RenderBox box = context.findRenderObject();
                               Share.share(text,
-                                  subject: subject,
-                                  sharePositionOrigin:
-                                      box.localToGlobal(Offset.zero) &
-                                          box.size);
+                                  subject: subject, sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
                             },
                     );
                   },

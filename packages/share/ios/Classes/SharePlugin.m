@@ -5,6 +5,16 @@
 #import "SharePlugin.h"
 
 static NSString *const PLATFORM_CHANNEL = @"plugins.flutter.io/share";
+@interface FLTModalWatcher : NSObject <UIPopoverPresentationControllerDelegate>
+@end
+@implementation FLTModalWatcher
+- (void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView  * __nonnull * __nonnull)view;{
+    NSLog(@"rebuild ios");
+}
+
+
+@end
+static FLTModalWatcher *watcher = nil;
 
 @interface ShareData : NSObject <UIActivityItemSource>
 
@@ -48,17 +58,30 @@ static NSString *const PLATFORM_CHANNEL = @"plugins.flutter.io/share";
 }
 
 @end
+@interface FLTSharePlugin() <UIPopoverPresentationControllerDelegate>
+@property (nonatomic,strong) UIViewController *viewController;
+@property (nonatomic) CGRect originRect;
+@end
 
 @implementation FLTSharePlugin
+-(instancetype) initWithViewController:(UIViewController *)viewController {
+    self = [super init];
+    if(self) {
+        _viewController = viewController;
+    }
+    return self;
+}
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar> *)registrar {
-  FlutterMethodChannel *shareChannel =
-      [FlutterMethodChannel methodChannelWithName:PLATFORM_CHANNEL
-                                  binaryMessenger:registrar.messenger];
+    FlutterMethodChannel *shareChannel = [FlutterMethodChannel methodChannelWithName:PLATFORM_CHANNEL
+                                binaryMessenger:registrar.messenger];
 
-  [shareChannel setMethodCallHandler:^(FlutterMethodCall *call, FlutterResult result) {
+    FLTSharePlugin *instance = [[FLTSharePlugin alloc]initWithViewController:[UIApplication sharedApplication].delegate.window.rootViewController];
+    [registrar addMethodCallDelegate:instance channel:shareChannel];
+}
+-(void)handleMethodCall:(FlutterMethodCall *)call result:(FlutterResult)result {
+    NSDictionary *arguments = [call arguments];
     if ([@"share" isEqualToString:call.method]) {
-      NSDictionary *arguments = [call arguments];
       NSString *shareText = arguments[@"text"];
       NSString *shareSubject = arguments[@"subject"];
 
@@ -69,29 +92,35 @@ static NSString *const PLATFORM_CHANNEL = @"plugins.flutter.io/share";
         return;
       }
 
-      NSNumber *originX = arguments[@"originX"];
-      NSNumber *originY = arguments[@"originY"];
-      NSNumber *originWidth = arguments[@"originWidth"];
-      NSNumber *originHeight = arguments[@"originHeight"];
-
-      CGRect originRect = CGRectZero;
-      if (originX != nil && originY != nil && originWidth != nil && originHeight != nil) {
-        originRect = CGRectMake([originX doubleValue], [originY doubleValue],
-                                [originWidth doubleValue], [originHeight doubleValue]);
-      }
-
+      [self makeOriginFromArguments:arguments];
       [self share:shareText
                  subject:shareSubject
           withController:[UIApplication sharedApplication].keyWindow.rootViewController
-                atSource:originRect];
+                atSource:self.originRect];
       result(nil);
-    } else {
+    } else if([@"updateOrigin" isEqualToString:call.method]) {
+        [self makeOriginFromArguments:arguments];
+    } else{
       result(FlutterMethodNotImplemented);
     }
-  }];
 }
+-(void)makeOriginFromArguments:(NSDictionary*)arguments {
+    NSNumber *originX = arguments[@"originX"];
+    NSNumber *originY = arguments[@"originY"];
+    NSNumber *originWidth = arguments[@"originWidth"];
+    NSNumber *originHeight = arguments[@"originHeight"];
 
-+ (void)share:(NSString *)shareText
+    self.originRect = CGRectZero;
+    if (originX != nil && originY != nil && originWidth != nil && originHeight != nil) {
+      self.originRect = CGRectMake([originX doubleValue], [originY doubleValue],
+                              [originWidth doubleValue], [originHeight doubleValue]);
+    }
+
+}
+-(void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView * _Nonnull __autoreleasing *)view {
+    *rect = self.originRect;
+}
+- (void)share:(NSString *)shareText
            subject:(NSString *)subject
     withController:(UIViewController *)controller
           atSource:(CGRect)origin {
@@ -99,6 +128,7 @@ static NSString *const PLATFORM_CHANNEL = @"plugins.flutter.io/share";
   UIActivityViewController *activityViewController =
       [[UIActivityViewController alloc] initWithActivityItems:@[ data ] applicationActivities:nil];
   activityViewController.popoverPresentationController.sourceView = controller.view;
+    activityViewController.popoverPresentationController.delegate = self;
   if (!CGRectIsEmpty(origin)) {
     activityViewController.popoverPresentationController.sourceRect = origin;
   }

@@ -26,6 +26,8 @@ class MethodCallHandler implements MethodChannel.MethodCallHandler {
       // Android does not support showing the share sheet at a particular point on screen.
       share.share((String) call.argument("text"), (String) call.argument("subject"));
       result.success(null);
+    } else if(call.method.equals("updateOrigin")) {
+      result.success(null);
     } else {
       result.notImplemented();
     }
