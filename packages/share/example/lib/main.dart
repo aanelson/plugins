@@ -54,32 +54,11 @@ class DemoAppState extends State<DemoApp> {
                   }),
                 ),
                 const Padding(padding: EdgeInsets.only(top: 24.0)),
-                OrientationBuilder(
-                  builder: (BuildContext context, Orientation orientation) {
-                    // A layoutbuilder needs to be used to retrieve the context right before the anchorpoint widget is created
-                    Future<void>.microtask(() {
-                      final RenderBox box = context.findRenderObject();
-                      if (box != null) {
-                        Share.sharePosition(box.localToGlobal(Offset.zero) & box.size);
-                      }
-                    });
-
+                ShareBuilder(
+                  builder: (BuildContext context, Sharing sharing) {
                     return RaisedButton(
                       child: const Text('Share'),
-                      onPressed: text.isEmpty
-                          ? null
-                          : () {
-                              // A builder is used to retrieve the context immediately
-                              // surrounding the RaisedButton.
-                              //
-                              // The context's `findRenderObject` returns the first
-                              // RenderObject in its descendent tree when it's not
-                              // a RenderObjectWidget. The RaisedButton's RenderObject
-                              // has its position and size after it's built.
-                              final RenderBox box = context.findRenderObject();
-                              Share.share(text,
-                                  subject: subject, sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
-                            },
+                      onPressed: text.isEmpty ? null : () => sharing.share(text, subject: subject),
                     );
                   },
                 ),
