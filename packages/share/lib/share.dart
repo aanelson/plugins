@@ -83,21 +83,20 @@ class Sharing {
   }
 }
 
+///Widget to encapsilate the getting of the share sheet origin for ipad.
 class ShareBuilder extends StatelessWidget {
   ShareBuilder({@required this.builder, Key key}) : super(key: key);
   final SharingBuilder builder;
   @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        Future<void>.microtask(() {
-          final RenderBox box = context.findRenderObject();
-          if (box != null) {
-            Share.sharePosition(box.localToGlobal(Offset.zero) & box.size);
-          }
-        });
-        return builder(context, Sharing._(context));
-      },
-    );
-  }
+  Widget build(BuildContext context) => LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          Future<void>.microtask(() {
+            final RenderBox box = context.findRenderObject();
+            if (box != null) {
+              Share.sharePosition(box.localToGlobal(Offset.zero) & box.size);
+            }
+          });
+          return builder(context, Sharing._(context));
+        },
+      );
 }

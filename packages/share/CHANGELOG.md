@@ -1,3 +1,8 @@
+## 0.6.4
+
+* Added mechanism to update origin position of share sheet
+* Added ShareBuilder widget to improve encapsulation
+
 ## 0.6.3+2
 
 * Remove AndroidX warnings.
