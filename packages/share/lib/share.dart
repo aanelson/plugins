@@ -83,7 +83,7 @@ class Sharing {
   }
 }
 
-///Widget to encapsilate the getting of the share sheet origin for ipad.
+///Widget to encapsulate the getting of the share sheet origin for ipad.
 class ShareBuilder extends StatelessWidget {
   ShareBuilder({@required this.builder, Key key}) : super(key: key);
   final SharingBuilder builder;
