@@ -5,16 +5,6 @@
 #import "SharePlugin.h"
 
 static NSString *const PLATFORM_CHANNEL = @"plugins.flutter.io/share";
-@interface FLTModalWatcher : NSObject <UIPopoverPresentationControllerDelegate>
-@end
-@implementation FLTModalWatcher
-- (void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView  * __nonnull * __nonnull)view;{
-    NSLog(@"rebuild ios");
-}
-
-
-@end
-static FLTModalWatcher *watcher = nil;
 
 @interface ShareData : NSObject <UIActivityItemSource>
 
